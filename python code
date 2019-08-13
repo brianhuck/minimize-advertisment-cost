@@ -1,0 +1,149 @@
+"""
+Created on Tue Jun 25 12:41:48 2019
+
+@author: Brian Huck
+
+Goal: highlight the difference between Integer Programs and Linear Programs
+"""
+
+'''
+Ops Research: Applications and Algorithms 3rd ed, Wayne L. Winston, page 61
+
+Problem: Suppose a jewlery company wants to purchase ads on t.v. since their 
+primary customers are high-income men and women.  They focus their attention on 
+football games and comedy shows.  Each comedy comercial is seen by 7 million high 
+income women and 2 million high income men.  Football adverts are seen by 2 million
+high income women and 12 million high income men.  One comedy ad costs $50K
+and one football ad costs $100K.  The company would like the commercials to be seen
+by at least 28 high income women and 24 million high income men. Minimize cost.
+'''
+from ortools.linear_solver import pywraplp
+
+def main():
+    ###############################
+    # Declare the solver
+    # instantiate a Glop solver, naming it LinearExample
+    ###############################
+    
+    solver = pywraplp.Solver('LinearExample', pywraplp.Solver.GLOP_LINEAR_PROGRAMMING)
+    
+    ###############################
+    # create the variables
+    ###############################
+    
+    # let x be the number of comedy ads
+    x = solver.NumVar(0, solver.infinity(), 'x')
+    
+    # let y be the number of football ads
+    y = solver.NumVar(0, solver.infinity(), 'y')
+    
+    ###############################
+    # define the constraints
+    ###############################
+    
+    # Seen by at least 28 million high income women
+    solver.Add(7*x + 2*y >= 28)
+    
+    # Seen by at least 28 million high income men
+    solver.Add(2*x + 12*y >= 24)
+
+    
+    ###############################
+    # define the objective function
+    ###############################
+
+    solver.Minimize(50 * x + 100 * y)
+    
+    ###############################
+    # Invoke the solver and display results
+    ###############################
+    
+    # solve the system
+    solver.Solve()
+    opt_solution = 50 * x.solution_value() + 100 * y.solution_value()
+    print('Number of variables = ', solver.NumVariables())
+    print('Number of constraints = ', solver.NumConstraints())
+    
+    # the value of each variable 
+    print('Solution: ')
+    print('x = ', x.solution_value())
+    print('y = ', y.solution_value())
+    
+    # the value of the objective function
+    print('LP Optimal objective value = ', opt_solution*1000)
+    
+main()
+    
+'''
+Assumptions of this basic Linear Program
+1) Proportionality: violated because in the real-world there exists diminishing returns to the number of viewers
+2) Additivity: violated because the same people may see multiple commercials
+3) Divisibility: violated because the final solution is 3.6 and 1.4 but we cannot
+    purchase 3.6 commercials
+4) Deterministic: violated because we cannot know for sure how many people will see each commercial
+    
+All assumption are violated but we can at least satisfy the divisibility assumption.
+Therefore, we should try to solve this as an Integer Program to see the difference
+'''
+
+def main():
+    ###############################
+    # Declare the solver
+    # instantiate a Glop solver, naming it LinearExample
+    ###############################
+    
+    solver = pywraplp.Solver('LinearExample', pywraplp.Solver.CBC_MIXED_INTEGER_PROGRAMMING)
+    
+    ###############################
+    # create the variables
+    ###############################
+    
+    x = solver.IntVar(0, solver.infinity(), 'x')
+    y = solver.IntVar(0, solver.infinity(), 'y')
+    
+    ###############################
+    # define the constraints
+    ###############################
+    
+    # Seen by at least 28 million high income women
+    solver.Add(7*x + 2*y >= 28)
+    
+    # Seen by at least 28 million high income men
+    solver.Add(2*x + 12*y >= 24)
+    
+    ###############################
+    # define the objective function
+    ###############################
+    
+    # 50 * x + 100 * y
+    solver.Minimize(50 * x + 100 * y)
+    
+    ###############################
+    # Invoke the solver and display results
+    ###############################
+    
+    # solve the system
+    solver.Solve()
+    opt_solution = 50 * x.solution_value() + 100 * y.solution_value()
+    print('Number of variables = ', solver.NumVariables())
+    print('Number of constraints = ', solver.NumConstraints())
+    
+    # the value of each variable 
+    print('Solution: ')
+    print('x = ', x.solution_value())
+    print('y = ', y.solution_value())
+    
+    # the value of the objective function
+    print('IP Optimal objective value = ', opt_solution*1000)
+    
+main()
+
+'''
+When solved as an Integer Program, the minimal cost is $400K versus $320K when
+solved as an LP and more closely resembles reality.
+'''
+
+
+
+
+
