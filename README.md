@@ -1,6 +1,8 @@
 # minimize-advertisment-cost
 I solve an introductory ops research problem using google's ortools package in Python.
 
+My goal with this script is to solve an introductory operations research problem while highlighting the differencing between linear programming and integer programming.  
+
 This problem is taken from the book, 'Ops Research: Applications and Algorithms 3rd ed,' by Wayne L. Winston on page 61.
 
 PROBLEM 
